@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepWork</title>
+    <link rel="icon" type="image/png" href="./DeepWork.png" sizez="40x40">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Newsreader:ital,wght@0,300;0,400;1,300;1,400&family=Fira+Code:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="./deepwork.css">
+</head>
+
+<body>
+    <div class="app">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <div class="brand">
+                    <div class="brand-dot"></div>DeepWork
+                </div>
+                <div class="brand-sub">Focus Planner</div>
+            </div>
+
+            <!-- POMODORO -->
+            <div class="timer-section">
+                <div class="timer-label">DW-Timer</div>
+
+                <div class="timer-modes">
+                    <button class="mode-btn active" onclick="setMode('focus',this)">Focus</button>
+                    <button class="mode-btn" onclick="setMode('short',this)">Short</button>
+                    <button class="mode-btn" onclick="setMode('long',this)">Long</button>
+                </div>
+
+                <div class="timer-ring-wrap">
+                    <div class="timer-ring">
+                        <svg viewBox="0 0 120 120" width="120" height="120">
+                            <circle class="track" cx="60" cy="60" r="54" />
+                            <circle class="progress" id="timer-progress" cx="60" cy="60" r="54" stroke-dasharray="339.3"
+                                stroke-dashoffset="0" />
+                        </svg>
+                        <div class="timer-display">
+                            <div class="timer-time" id="timer-display">25:00</div>
+                            <div class="timer-mode-label" id="timer-mode-label">focus</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timer-controls">
+                    <button class="timer-btn" id="timer-start" onclick="toggleTimer()">▶ Start</button>
+                    <button class="timer-btn" id="timer-reset" onclick="resetTimer()">↺</button>
+                </div>
+
+                <div class="session-count">
+                    <div id="session-text">Session 1 of 4</div>
+                    <div class="session-dots" id="session-dots"></div>
+                </div>
+            </div>
+
+            <!-- STATS -->
+            <div class="stats-section">
+                <div class="stat-row">
+                    <span class="stat-key">Tasks done today</span>
+                    <span class="stat-val" id="stat-done">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-key">Focus sessions</span>
+                    <span class="stat-val" id="stat-sessions">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-key">Total tasks</span>
+                    <span class="stat-val" id="stat-total">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-key">Overdue</span>
+                    <span class="stat-val" id="stat-overdue" style="color:var(--red)">0</span>
+                </div>
+            </div>
+
+            <div style="padding:20px 28px;margin-top:auto;">
+                <div
+                    style="font-family:'Fira Code',monospace;font-size:0.62rem;color:rgba(245,240,232,0.25);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">
+                    Active focus task</div>
+                <div id="focus-task-name"
+                    style="font-family:'Newsreader',serif;font-size:0.85rem;color:rgba(245,240,232,0.6);font-style:italic;">
+                    None selected</div>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main">
+            <div class="page-header">
+                <div>
+                    <div class="page-title" id="greeting">Good morning.</div>
+                    <div class="page-date" id="page-date"></div>
+                </div>
+            </div>
+
+            <!-- TABS -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('tasks',this)">Tasks</button>
+                <button class="tab" onclick="switchTab('deadlines',this)">Deadlines</button>
+            </div>
+
+            <!-- TASKS TAB -->
+            <div id="tab-tasks">
+                <!-- ADD -->
+                <div class="add-task-bar">
+                    <input type="text" id="task-input" placeholder="Add a task or assignment…" maxlength="80">
+                    <select id="task-cat">
+                        <option value="study">Study</option>
+                        <option value="work">Work</option>
+                        <option value="creative">Creative</option>
+                        <option value="personal">Personal</option>
+                    </select>
+                    <input type="date" id="task-deadline" title="Deadline">
+                    <button class="btn-add-task" onclick="addTask()">＋ Add</button>
+                </div>
+
+                <!-- PROGRESS -->
+                <div class="progress-bar-wrap">
+                    <div class="progress-info">
+                        <span id="progress-label">0 of 0 tasks complete</span>
+                        <span id="progress-pct">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+                    </div>
+                </div>
+
+                <!-- FILTERS -->
+                <div class="sec-head">
+                    <span class="sec-title">All Tasks</span>
+                    <div style="display:flex;gap:6px;">
+                        <button class="mode-btn active"
+                            style="color:var(--ink);border-color:var(--border);background:var(--paper);font-size:0.6rem;padding:4px 10px;"
+                            onclick="filterTasks('all',this)" id="f-all">All</button>
+                        <button class="mode-btn"
+                            style="color:var(--ink);border-color:var(--border);background:var(--paper);font-size:0.6rem;padding:4px 10px;"
+                            onclick="filterTasks('active',this)" id="f-active">Active</button>
+                        <button class="mode-btn"
+                            style="color:var(--ink);border-color:var(--border);background:var(--paper);font-size:0.6rem;padding:4px 10px;"
+                            onclick="filterTasks('done',this)" id="f-done">Done</button>
+                    </div>
+                </div>
+                <div class="tasks-list" id="tasks-list"></div>
+            </div>
+
+            <!-- DEADLINES TAB -->
+            <div id="tab-deadlines" style="display:none;">
+                <div class="sec-head" style="margin-bottom:20px;">
+                    <span class="sec-title">Upcoming Deadlines</span>
+                    <span class="sec-count" id="dl-count">—</span>
+                </div>
+                <div class="deadline-grid" id="deadline-grid"></div>
+                <div id="dl-empty" style="display:none;">
+                    <div class="empty-state">
+                        <p>No tasks with deadlines yet. Add deadlines to your tasks in the Tasks tab.</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="./deepwork.js">
+
+    </script>
+</body>
+
+</html>
